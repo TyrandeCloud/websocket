@@ -36,7 +36,7 @@ func NewConnections(ctx context.Context) *Connections {
 			read:  env.GetWebsocketRead(),
 			write: env.GetWebsocketWrite(),
 		},
-		keepAliveTimeoutInSec: int32(env.GetWebsocketKeepaliveTimeout(ConnectionTimeout)),
+		keepAliveTimeoutInSec: env.GetWebsocketKeepaliveTimeout(ConnectionTimeout),
 		ctx:                   ctx,
 	}
 	go cs.remove()
@@ -49,7 +49,7 @@ type Connections struct {
 	dashboardChan         chan []byte
 	removedChan           chan int32
 	printMode             *printMode
-	keepAliveTimeoutInSec int32
+	keepAliveTimeoutInSec int64
 	ctx                   context.Context
 }
 
@@ -166,7 +166,7 @@ type conn struct {
 	handler               handler.Interface
 	writeChan             chan []byte
 	lastPingTime          time.Time
-	keepAliveTimeoutInSec int32
+	keepAliveTimeoutInSec int64
 	closeOnce             sync.Once
 	removedChan           chan<- int32
 	printMode             *printMode

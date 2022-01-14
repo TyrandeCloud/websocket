@@ -1,5 +1,10 @@
 package websocket
 
+import (
+	"github.com/Shanghai-Lunara/pkg/zaplogger"
+	"time"
+)
+
 func NewClientWithReconnect(opt *Option) {
 	defer opt.Cancel()
 	for {
@@ -9,9 +14,11 @@ func NewClientWithReconnect(opt *Option) {
 		case OptionActive, OptionInActive:
 			client, err := NewClient(opt)
 			if err != nil {
+				zaplogger.Sugar().Error(err)
 				if ok := opt.Next(); !ok {
 					return
 				}
+				time.Sleep(time.Millisecond * time.Duration(opt.RetryDuration))
 				continue
 			}
 			opt.ChangeStatus(OptionActive)
@@ -25,6 +32,8 @@ func NewClientWithReconnect(opt *Option) {
 				if ok := opt.Next(); !ok {
 					return
 				}
+				time.Sleep(time.Millisecond * time.Duration(opt.RetryDuration))
+				// reconnect
 			}
 		}
 	}
