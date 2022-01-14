@@ -1,2 +1,2 @@
 # websocket
-This is a common and easy websocket library
+This is a common and easy websocket hub library
