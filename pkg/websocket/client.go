@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Shanghai-Lunara/pkg/zaplogger"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 	"net/url"
 	"sync"
 	"time"
@@ -16,12 +17,11 @@ const (
 	RetryConnectionDurationInMS = 3000
 )
 
-func NewOption(ctx context.Context, hostname string, address string, path string, pingData []byte) *Option {
+func NewOption(ctx context.Context, url url.URL, pingData []byte, dialer *websocket.Dialer) *Option {
 	sub, cancel := context.WithCancel(ctx)
 	return &Option{
-		Hostname:          hostname,
-		Address:           address,
-		Path:              path,
+		Dialer:            dialer,
+		Url:               url,
 		Status:            OptionInActive,
 		pingData:          pingData,
 		Maintain:          OptionMaintainRetry,
@@ -57,10 +57,9 @@ type Option struct {
 	rw   sync.RWMutex
 	once sync.Once
 
-	Hostname string
-	Address  string
-	Path     string
-	Status   OptionStatus
+	Dialer *websocket.Dialer
+	Url    url.URL
+	Status OptionStatus
 
 	Maintain      OptionMaintainType
 	MaxRetryCount int64
@@ -108,7 +107,8 @@ func (o *Option) RegisterFunc(do ...OptionRegisterFunction) {
 func (o *Option) Prepare() error {
 	for _, v := range o.registerFunctions {
 		if err := v(); err != nil {
-			zaplogger.Sugar().Errorf("Prepare do func err:%v", err)
+			zaplogger.Sugar().Errorw("websocket Option Prepare do func failed",
+				zap.Error(err))
 			return err
 		}
 	}
@@ -157,13 +157,15 @@ func (o *Option) Cancel() {
 }
 
 func NewClient(opt *Option) (*Client, error) {
-	u := url.URL{
-		Scheme: "ws",
-		Host:   opt.Address,
-		Path:   opt.Path,
+	dialer := websocket.DefaultDialer
+	if opt.Dialer != nil {
+		dialer = opt.Dialer
 	}
-	a, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	a, _, err := dialer.Dial(opt.Url.String(), nil)
 	if err != nil {
+		zaplogger.Sugar().Errorw("websocket.DefaultDialer.Dial err",
+			zap.String("path", opt.Url.String()),
+			zap.Error(err))
 		return nil, err
 	}
 	sub, cancel := context.WithCancel(opt.ctx)
@@ -215,7 +217,6 @@ func (c *Client) readPump() {
 	defer c.Close()
 	for {
 		_, message, err := c.conn.ReadMessage()
-		//klog.V(3).Infof("messageType: %d message: %s err:%v\n", messageType, string(message), err)
 		if err != nil {
 			zaplogger.Sugar().Error(err)
 			return
