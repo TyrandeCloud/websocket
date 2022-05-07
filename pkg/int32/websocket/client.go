@@ -64,6 +64,7 @@ type Option struct {
 
 	Maintain      OptionMaintainType
 	MaxRetryCount int64
+	// RetryDuration was the wait time in Millisecond
 	RetryDuration int64
 
 	pingData          []byte

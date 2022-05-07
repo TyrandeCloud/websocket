@@ -18,7 +18,7 @@ func NewClientWithReconnect(opt *Option) {
 				if ok := opt.Next(); !ok {
 					return
 				}
-				retryWait(opt.RetryDuration)
+				retryWaitInMillisecond(opt.RetryDuration)
 				continue
 			}
 			opt.ChangeStatus(OptionActive)
@@ -32,13 +32,13 @@ func NewClientWithReconnect(opt *Option) {
 				if ok := opt.Next(); !ok {
 					return
 				}
-				retryWait(opt.RetryDuration)
+				retryWaitInMillisecond(opt.RetryDuration)
 			}
 		}
 	}
 }
 
-func retryWait(sleep int64) {
+func retryWaitInMillisecond(sleep int64) {
 	if sleep == 0 {
 		return
 	}
