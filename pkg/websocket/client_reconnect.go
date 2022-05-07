@@ -1,5 +1,7 @@
 package websocket
 
+import "time"
+
 func NewClientWithReconnect(opt *Option) {
 	defer opt.Cancel()
 	for {
@@ -12,6 +14,7 @@ func NewClientWithReconnect(opt *Option) {
 				if ok := opt.Next(); !ok {
 					return
 				}
+				retryWait(opt.RetryDuration)
 				continue
 			}
 			opt.ChangeStatus(OptionActive)
@@ -25,7 +28,15 @@ func NewClientWithReconnect(opt *Option) {
 				if ok := opt.Next(); !ok {
 					return
 				}
+				retryWait(opt.RetryDuration)
 			}
 		}
 	}
+}
+
+func retryWait(sleep int64) {
+	if sleep == 0 {
+		return
+	}
+	time.Sleep(time.Millisecond * time.Duration(sleep))
 }

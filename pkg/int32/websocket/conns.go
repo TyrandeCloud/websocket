@@ -212,7 +212,7 @@ func (c *conn) readPump() {
 		_, data, err := c.conn.ReadMessage()
 		//klog.V(3).Infof("messageType: %d message-string: %s\n", messageType, string(data))
 		if err != nil {
-			zaplogger.Sugar().Error(err)
+			zaplogger.Sugar().Debug(err)
 			return
 		}
 		if c.printMode.read == env.Show {
@@ -243,7 +243,7 @@ func (c *conn) writePump() {
 				zaplogger.Sugar().Infow("conn write", "id", c.id, "data", string(msg))
 			}
 			if err := c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
-				zaplogger.Sugar().Error(err)
+				zaplogger.Sugar().Debug(err)
 				return
 			}
 		case <-c.ctx.Done():
