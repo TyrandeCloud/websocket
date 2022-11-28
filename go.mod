@@ -3,10 +3,10 @@ module github.com/TyrandeCloud/websocket
 go 1.17
 
 require (
-	github.com/Shanghai-Lunara/pkg v0.0.0-20220114053728-905b77b89bc0
-	github.com/gorilla/websocket v1.4.2
-	github.com/nevercase/concurrent-map v0.0.0-20201113063712-c05371cadfce
-	go.uber.org/zap v1.20.0
+	github.com/Shanghai-Lunara/pkg v1.0.1
+	github.com/gorilla/websocket v1.5.0
+	github.com/nevercase/concurrent-map v1.0.0
+	go.uber.org/zap v1.23.0
 )
 
 require (

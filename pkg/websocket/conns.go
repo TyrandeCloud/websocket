@@ -184,7 +184,7 @@ func (c *conn) keepAlive() {
 		select {
 		case <-tick.C:
 			if time.Now().Sub(c.lastPingTime) > time.Second*time.Duration(c.keepAliveTimeoutInSec) {
-				zaplogger.Sugar().Info("keepAlive timeout")
+				zaplogger.Sugar().Debug("keepAlive timeout")
 				return
 			}
 		case <-c.ctx.Done():

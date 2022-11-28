@@ -219,7 +219,7 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
-			zaplogger.Sugar().Error(err)
+			zaplogger.Sugar().Debug(err)
 			return
 		}
 		c.opt.readHandlerChan <- message
