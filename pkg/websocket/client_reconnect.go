@@ -2,8 +2,13 @@ package websocket
 
 import "time"
 
-func NewClientWithReconnect(opt *Option) {
-	defer opt.Cancel()
+func NewClientWithReconnect(opt *Option, stop chan<- struct{}) {
+	defer func() {
+		opt.Cancel()
+		if stop != nil {
+			stop <- struct{}{}
+		}
+	}()
 	for {
 		switch opt.Status {
 		case OptionClosed:
